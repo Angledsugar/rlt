@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+.venv/
+
+# IDE / tools
+.ruff_cache/
+.pytest_cache/
+.claude/
+
+# Checkpoints
+checkpoints/
+
+# Data
+data/
