@@ -1,0 +1,71 @@
+<mujoco>
+    <include file="scene.xml"/>
+    <include file="vx300s_dependencies.xml"/>
+
+    <default>
+        <default class="pen">
+            <geom condim="4" solimp="2 1 0.01" solref="0.01 1"
+                  friction="1 0.005 0.0001"/>
+        </default>
+    </default>
+
+    <worldbody>
+        <include file="vx300s_left.xml" />
+        <include file="vx300s_right.xml" />
+
+        <!-- Pen body: lying flat on the table along Y axis.
+             Body frame centered at barrel midpoint for stable inertia.
+             Cap is a child body connected by a slide joint (snap-fit). -->
+        <body name="pen_body" pos="0.1 0.5 0.008">
+            <joint name="pen_body_joint" type="free" frictionloss="0.01"/>
+            <inertial pos="0 0 0" mass="0.03" diaginertia="0.0002 0.00003 0.0002"/>
+            <!-- barrel: box for stable flat resting, extends +/-0.05 along Y -->
+            <geom name="pen_barrel" type="box" size="0.007 0.05 0.007"
+                  pos="0 0 0" rgba="0.2 0.3 0.8 1" class="pen"/>
+            <!-- rounded tip at -Y end -->
+            <geom name="pen_tip" type="sphere" size="0.007"
+                  pos="0 -0.05 0" rgba="0.15 0.2 0.7 1" class="pen"/>
+
+            <!-- Cap: child body, slides off along +Y axis -->
+            <body name="pen_cap" pos="0 0.06 0">
+                <joint name="pen_cap_slide" type="slide" axis="0 1 0"
+                       range="0 0.15" damping="2" frictionloss="0.3"
+                       solreflimit="0.01 1" solimplimit="0.95 0.99 0.001"/>
+                <inertial pos="0 0 0" mass="0.008" diaginertia="0.00005 0.00001 0.00005"/>
+                <!-- outer cap shell -->
+                <geom name="cap_outer" type="cylinder" size="0.01 0.018"
+                      pos="0 0 0" euler="90 0 0" rgba="0.9 0.1 0.1 1" class="pen"/>
+                <!-- cap closed end disc at +Y side -->
+                <geom name="cap_top" type="cylinder" size="0.01 0.002"
+                      pos="0 0.02 0" euler="90 0 0" rgba="0.85 0.05 0.05 1" class="pen"/>
+            </body>
+        </body>
+
+    </worldbody>
+
+    <actuator>
+        <position ctrllimited="true" ctrlrange="-3.14158 3.14158" joint="vx300s_left/waist" kp="800"  user="1" forcelimited="true" forcerange="-150 150"/>
+        <position ctrllimited="true" ctrlrange="-1.85005 1.25664" joint="vx300s_left/shoulder" kp="1600"  user="1" forcelimited="true" forcerange="-300 300"/>
+        <position ctrllimited="true" ctrlrange="-1.76278 1.6057" joint="vx300s_left/elbow" kp="800"  user="1" forcelimited="true" forcerange="-100 100"/>
+        <position ctrllimited="true" ctrlrange="-3.14158 3.14158" joint="vx300s_left/forearm_roll" kp="10"  user="1" forcelimited="true" forcerange="-100 100"/>
+        <position ctrllimited="true" ctrlrange="-1.8675 2.23402" joint="vx300s_left/wrist_angle" kp="50"  user="1"/>
+        <position ctrllimited="true" ctrlrange="-3.14158 3.14158" joint="vx300s_left/wrist_rotate" kp="20"  user="1"/>
+        <position ctrllimited="true" ctrlrange="0.021 0.057" joint="vx300s_left/left_finger" kp="200"  user="1"/>
+        <position ctrllimited="true" ctrlrange="-0.057 -0.021" joint="vx300s_left/right_finger" kp="200"  user="1"/>
+
+        <position ctrllimited="true" ctrlrange="-3.14158 3.14158" joint="vx300s_right/waist" kp="800"  user="1" forcelimited="true" forcerange="-150 150"/>
+        <position ctrllimited="true" ctrlrange="-1.85005 1.25664" joint="vx300s_right/shoulder" kp="1600"  user="1" forcelimited="true" forcerange="-300 300"/>
+        <position ctrllimited="true" ctrlrange="-1.76278 1.6057" joint="vx300s_right/elbow" kp="800"  user="1" forcelimited="true" forcerange="-100 100"/>
+        <position ctrllimited="true" ctrlrange="-3.14158 3.14158" joint="vx300s_right/forearm_roll" kp="10"  user="1" forcelimited="true" forcerange="-100 100"/>
+        <position ctrllimited="true" ctrlrange="-1.8675 2.23402" joint="vx300s_right/wrist_angle" kp="50"  user="1"/>
+        <position ctrllimited="true" ctrlrange="-3.14158 3.14158" joint="vx300s_right/wrist_rotate" kp="20"  user="1"/>
+        <position ctrllimited="true" ctrlrange="0.021 0.057" joint="vx300s_right/left_finger" kp="200"  user="1"/>
+        <position ctrllimited="true" ctrlrange="-0.057 -0.021" joint="vx300s_right/right_finger" kp="200"  user="1"/>
+    </actuator>
+
+    <!-- keyframe: arms at start, pen lying flat, cap on pen (slide=0) -->
+    <keyframe>
+        <key qpos="0 -0.96 1.16 0 -0.3 0 0.024 -0.024  0 -0.96 1.16 0 -0.3 0 0.024 -0.024  0.1 0.5 0.008 1 0 0 0  0"/>
+    </keyframe>
+
+</mujoco>

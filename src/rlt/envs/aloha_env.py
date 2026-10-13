@@ -41,7 +41,7 @@ class AlohaSimEnv(BaseEnv):
 
     def __init__(
         self,
-        task: str = "gym_aloha/AlohaTransferCube-v0",
+        task: str = "gym_aloha/AlohaPenUncap-v0",
         prompt: str = "uncap the pen",
         max_episode_steps: int = 400,
         adapt_to_pi: bool = False,
@@ -50,13 +50,24 @@ class AlohaSimEnv(BaseEnv):
         """Initialize ALOHA sim environment.
 
         Args:
-            task: Gym environment ID.
+            task: Gym environment ID (e.g. gym_aloha/AlohaPenUncap-v0).
             prompt: Language instruction for VLA.
             max_episode_steps: Maximum steps per episode.
             adapt_to_pi: Apply pi-space joint transforms.
             tokenizer_path: Path to SentencePiece tokenizer for prompt encoding.
         """
         import gymnasium as gym
+
+        # Register our custom pen_uncap env before gym.make.
+        from rlt.envs.pen_uncap_env import PenUncapEnv  # noqa: F401
+        if "gym_aloha/AlohaPenUncap-v0" not in gym.envs.registry:
+            gym.register(
+                id="gym_aloha/AlohaPenUncap-v0",
+                entry_point="rlt.envs.pen_uncap_env:PenUncapEnv",
+                max_episode_steps=max_episode_steps,
+                nondeterministic=True,
+                kwargs={"obs_type": "pixels_agent_pos"},
+            )
 
         self._env = gym.make(task, max_episode_steps=max_episode_steps)
         self._prompt = prompt
@@ -161,6 +172,11 @@ class AlohaSimEnv(BaseEnv):
         if isinstance(raw_obs, dict) and "pixels" in raw_obs:
             # gym-aloha format: raw_obs["pixels"] is a dict of camera images.
             pixels = raw_obs["pixels"]
+
+            # PenUncapEnv uses "top" camera — remap to "cam_high" for VLA compatibility.
+            if "top" in pixels and "cam_high" not in pixels:
+                pixels = dict(pixels, cam_high=pixels["top"])
+
             for aloha_cam, pi_cam in CAMERA_MAPPING.items():
                 if aloha_cam in pixels:
                     img = self._process_image(np.asarray(pixels[aloha_cam]))

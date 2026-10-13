@@ -26,6 +26,7 @@ import flax.nnx as nnx
 import jax
 import jax.numpy as jnp
 import numpy as np
+import orbax.checkpoint as ocp
 
 from rlt.config.base import RLTConfig
 from rlt.models.actor import Actor
@@ -94,6 +95,7 @@ def train_online_rl(
     rl_token_module: RLTokenModule,
     env,
     rng: jax.Array,
+    checkpoint_dir: str = "checkpoints/online_rl",
 ) -> Actor:
     """Run the online RL training loop (Algorithm 1).
 
@@ -113,11 +115,13 @@ def train_online_rl(
 
     # Load frozen VLA with openpi policy transforms so prompt/state/action
     # preprocessing matches the checkpoint's training/inference pipeline.
+    logger.info("Loading VLA backbone...")
     vla = VLABackbone(config.vla_checkpoint)
     vla.load_from_openpi_config(
         config_name="pi05_aloha_pen_uncap",
         checkpoint_dir=config.vla_checkpoint,
     )
+    logger.info("VLA backbone loaded.")
 
     # Create actor-critic.
     actor, critic, target_critic = create_actor_critic(config, ac_rng)
@@ -141,13 +145,14 @@ def train_online_rl(
     )
 
     # Checkpoint manager.
-    ckpt_manager = create_checkpoint_manager("checkpoints/online_rl")
+    ckpt_manager = create_checkpoint_manager(checkpoint_dir)
 
     # --- Warmup phase (Algorithm 1, line 3) ---
     logger.info("Warmup: collecting %d episodes with base VLA policy", config.training.num_warmup_episodes)
     rng = _run_warmup(
         config, vla, rl_token_module, env, replay_buffer, rng,
     )
+    logger.info("Warmup complete. Buffer size: %d", len(replay_buffer))
 
     # --- Online RL loop (Algorithm 1, lines 5-19) ---
     logger.info("Starting online RL loop")
@@ -177,6 +182,9 @@ def train_online_rl(
         )
 
         env_step += len(episode_data["rewards"])
+        ep_reward = float(episode_data["rewards"].sum())
+        logger.info("Episode %d: steps=%d, reward=%.2f, total_env_steps=%d, buffer=%d",
+                    episode, len(episode_data["rewards"]), ep_reward, env_step, len(replay_buffer))
 
         # Off-policy updates (paper: UTD ratio = 5).
         if len(replay_buffer) >= config.training.batch_size:
@@ -187,16 +195,15 @@ def train_online_rl(
                 jax_batch = {k: jnp.array(v) for k, v in batch.items()}
                 metrics = updater.update(jax_batch, update_rng)
 
-            if env_step % config.training.log_interval == 0:
-                log_metrics(env_step, metrics)
+            log_metrics(env_step, metrics)
 
         # Save checkpoint.
         if env_step % config.training.checkpoint_interval == 0:
-            ckpt_manager.save(env_step, args=nnx.state(actor))
+            ckpt_manager.save(env_step, args=ocp.args.StandardSave(nnx.state(actor)))
             logger.info("Checkpoint saved at step %d", env_step)
 
     # Save final checkpoint.
-    ckpt_manager.save(env_step, args=nnx.state(actor))
+    ckpt_manager.save(env_step, args=ocp.args.StandardSave(nnx.state(actor)))
     logger.info("Online RL training complete after %d steps, %d episodes", env_step, episode)
 
     return actor
@@ -229,9 +236,9 @@ def _run_warmup(
             dones=episode_data["dones"],
             stride=config.training.action_chunk_stride,
         )
-        if (ep + 1) % 10 == 0:
-            logger.info("Warmup episode %d/%d, buffer size: %d",
-                        ep + 1, config.training.num_warmup_episodes, len(replay_buffer))
+        logger.info("Warmup episode %d/%d, steps=%d, buffer size: %d",
+                    ep + 1, config.training.num_warmup_episodes,
+                    len(episode_data["rewards"]), len(replay_buffer))
     return rng
 
 
@@ -273,7 +280,6 @@ def _collect_episode(
 
     obs = env.reset()
     done = False
-
     while not done:
         rng, vla_rng, actor_rng = jax.random.split(rng, 3)
 
@@ -320,6 +326,8 @@ def _collect_episode(
 
         # Execute action chunk (Algorithm 1, line 10).
         action_chunk = action_flat.reshape(config.action_chunk_length, config.action_dim)
+        # Clip actions to valid range to avoid MuJoCo physics instability.
+        action_chunk = np.clip(np.asarray(action_chunk), -1.0, 1.0)
         next_obs, reward, done, info = env.step(action_chunk)
 
         # Store transition data.

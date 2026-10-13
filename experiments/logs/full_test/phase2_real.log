@@ -1,0 +1,372 @@
+Loading RL token...
+INFO:2026-04-15 14:34:01,657:jax._src.xla_bridge:925: Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
+2026-04-15 14:34:01,657 [jax._src.xla_bridge] INFO: Unable to initialize backend 'rocm': module 'jaxlib.xla_extension' has no attribute 'GpuAllocatorConfig'
+INFO:2026-04-15 14:34:01,658:jax._src.xla_bridge:925: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+2026-04-15 14:34:01,658 [jax._src.xla_bridge] INFO: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+RL token loaded. (3.0s)
+Creating env (max_episode_steps=100)...
+2026-04-15 14:34:04,145 [absl] INFO: MUJOCO_GL is not set, so an OpenGL backend will be chosen automatically.
+2026-04-15 14:34:04,203 [absl] INFO: Successfully imported OpenGL backend: glfw
+2026-04-15 14:34:04,242 [absl] INFO: MuJoCo library version is: 3.6.0
+Env created. (3.5s)
+Starting train_online_rl...
+[train_online_rl] Phase 2: Online RL training
+[train_online_rl] Training config: TrainingConfig(replay_buffer_size=100000, num_warmup_episodes=3, batch_size=64, beta=1.0, reference_action_dropout=0.75, action_chunk_stride=2, control_frequency_hz=50, utd_ratio=10, max_env_steps=500, log_interval=100, checkpoint_interval=5000, wandb_project='rlt-pen-uncap', seed=42)
+[train_online_rl] Loading VLA backbone...
+2026-04-15 14:34:09,850 [datasets] INFO: JAX version 0.5.3 available.
+2026-04-15 14:34:10,033 [root] INFO: Loading model...
+2026-04-15 14:34:10,033 [absl] INFO: orbax-checkpoint version: 0.11.13
+2026-04-15 14:34:10,033 [absl] INFO: Created BasePyTreeCheckpointHandler: use_ocdbt=True, use_zarr3=False, pytree_metadata_options=PyTreeMetadataOptions(support_rich_types=False), array_metadata_store=<orbax.checkpoint._src.metadata.array_metadata_store.Store object at 0x7186c81f5c90>
+2026-04-15 14:34:10,063 [absl] INFO: Restoring checkpoint from /home/engineer/.cache/openpi/openpi-assets/checkpoints/pi05_base/params.
+2026-04-15 14:34:10,577 [absl] INFO: [thread=MainThread] Failed to get flag value for EXPERIMENTAL_ORBAX_USE_DISTRIBUTED_PROCESS_ID.
+2026-04-15 14:34:17,494 [absl] INFO: [process=0] /jax/checkpoint/read/bytes_per_sec: 1.7 GiB/s (total bytes: 12.5 GiB) (time elapsed: 7 seconds) (per-host)
+2026-04-15 14:34:17,494 [absl] INFO: Finished restoring checkpoint in 7.43 seconds from /home/engineer/.cache/openpi/openpi-assets/checkpoints/pi05_base/params.
+2026-04-15 14:34:18,460 [root] INFO: Loaded norm stats from gs://openpi-assets/checkpoints/pi05_base/assets/trossen
+2026-04-15 14:34:18,460 [root] INFO: Loaded norm stats from /home/engineer/.cache/openpi/openpi-assets/checkpoints/pi05_base/assets/trossen
+2026-04-15 14:34:18,463 [rlt] INFO: VLA loaded from openpi config: pi05_aloha_pen_uncap
+[train_online_rl] VLA backbone loaded.
+2026-04-15 14:34:20,774 [absl] INFO: [process=0][thread=MainThread] CheckpointManager init: checkpointers=None, item_names=None, item_handlers=None, handler_registry=None
+2026-04-15 14:34:20,774 [absl] INFO: Initialized registry DefaultCheckpointHandlerRegistry({('metrics', <class 'orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonSaveArgs'>): <orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonCheckpointHandler object at 0x717c688bfb90>, ('metrics', <class 'orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonRestoreArgs'>): <orbax.checkpoint._src.handlers.json_checkpoint_handler.JsonCheckpointHandler object at 0x717c688bfb90>}).
+2026-04-15 14:34:20,774 [absl] INFO: [process=0][thread=MainThread] Using barrier_sync_fn: <function get_barrier_sync_fn.<locals>.<lambda> at 0x717c687367a0> timeout: 600 secs and primary_host=0 for async checkpoint writes
+2026-04-15 14:34:20,775 [absl] INFO: Found 0 checkpoint steps in /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test
+2026-04-15 14:34:20,775 [absl] INFO: [process=0][thread=MainThread] CheckpointManager created,  primary_host=0, CheckpointManagerOptions=CheckpointManagerOptions(save_interval_steps=1, max_to_keep=5, keep_time_interval=None, keep_period=None, should_keep_fn=None, best_fn=None, best_mode='max', keep_checkpoints_without_metrics=True, step_prefix=None, step_format_fixed_length=None, step_name_format=None, create=True, cleanup_tmp_directories=False, save_on_steps=frozenset(), single_host_load_and_broadcast=False, todelete_subdir=None, enable_background_delete=False, read_only=False, enable_async_checkpointing=True, async_options=None, multiprocessing_options=MultiprocessingOptions(primary_host=0, active_processes=None, barrier_sync_key_prefix=None), should_save_fn=None, file_options=FileOptions(path_permission_mode=None), save_root_metadata=True, temporary_path_class=None, save_decision_policy=None, prevent_write_metrics=False), root_directory=/home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test: <orbax.checkpoint.checkpoint_manager.CheckpointManager object at 0x717c72056bd0>
+[train_online_rl] Warmup: collecting 3 episodes with base VLA policy
+    [step 0] VLA fwd: 40.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[warmup] Episode 1/3, steps=10, buffer=5
+    [step 0] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+[warmup] Episode 2/3, steps=10, buffer=10
+    [step 0] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[warmup] Episode 3/3, steps=10, buffer=15
+[train_online_rl] Warmup complete. Buffer size: 15
+[train_online_rl] Starting online RL loop
+    [step 0] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 1: steps=10, reward=0.00, total_env_steps=10, buffer=20
+    [step 0] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 16.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 2: steps=10, reward=0.00, total_env_steps=20, buffer=25
+    [step 0] VLA fwd: 17.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 3: steps=10, reward=0.00, total_env_steps=30, buffer=30
+    [step 0] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 19.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 4: steps=10, reward=0.00, total_env_steps=40, buffer=35
+    [step 0] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 5: steps=10, reward=0.00, total_env_steps=50, buffer=40
+    [step 0] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 6: steps=10, reward=0.00, total_env_steps=60, buffer=45
+    [step 0] VLA fwd: 17.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 7: steps=10, reward=0.00, total_env_steps=70, buffer=50
+    [step 0] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 8: steps=10, reward=0.00, total_env_steps=80, buffer=55
+    [step 0] VLA fwd: 16.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 9: steps=10, reward=0.00, total_env_steps=90, buffer=60
+    [step 0] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 10: steps=10, reward=0.00, total_env_steps=100, buffer=65
+2026-04-15 15:13:12,134 [rlt] INFO: step=100 | critic_loss=0.218627 | actor_q_loss=0.711317 | actor_bc_loss=76.419098
+    [step 0] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 11: steps=10, reward=0.00, total_env_steps=110, buffer=70
+2026-04-15 15:16:14,837 [rlt] INFO: step=110 | critic_loss=0.016373 | actor_q_loss=0.625023 | actor_bc_loss=67.174530
+    [step 0] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 16.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 12: steps=8, reward=1.00, total_env_steps=118, buffer=74
+2026-04-15 15:18:37,512 [rlt] INFO: step=118 | critic_loss=0.014889 | actor_q_loss=0.559137 | actor_bc_loss=67.478958
+    [step 0] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 13: steps=10, reward=0.00, total_env_steps=128, buffer=79
+2026-04-15 15:21:35,615 [rlt] INFO: step=128 | critic_loss=0.004323 | actor_q_loss=0.472538 | actor_bc_loss=67.648361
+    [step 0] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 14: steps=10, reward=0.00, total_env_steps=138, buffer=84
+2026-04-15 15:24:33,612 [rlt] INFO: step=138 | critic_loss=0.003566 | actor_q_loss=0.432121 | actor_bc_loss=60.775990
+    [step 0] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 15: steps=10, reward=0.00, total_env_steps=148, buffer=89
+2026-04-15 15:27:26,498 [rlt] INFO: step=148 | critic_loss=0.001906 | actor_q_loss=0.419090 | actor_bc_loss=53.036808
+    [step 0] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 16: steps=10, reward=0.00, total_env_steps=158, buffer=94
+2026-04-15 15:30:19,968 [rlt] INFO: step=158 | critic_loss=0.000964 | actor_q_loss=0.382810 | actor_bc_loss=53.368301
+    [step 0] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 17: steps=10, reward=0.00, total_env_steps=168, buffer=99
+2026-04-15 15:33:14,172 [rlt] INFO: step=168 | critic_loss=0.001180 | actor_q_loss=0.386986 | actor_bc_loss=55.955482
+    [step 0] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 18: steps=10, reward=0.00, total_env_steps=178, buffer=104
+2026-04-15 15:36:04,587 [rlt] INFO: step=178 | critic_loss=0.000837 | actor_q_loss=0.378091 | actor_bc_loss=49.928215
+    [step 0] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 19: steps=10, reward=0.00, total_env_steps=188, buffer=109
+2026-04-15 15:39:00,086 [rlt] INFO: step=188 | critic_loss=0.000665 | actor_q_loss=0.386125 | actor_bc_loss=49.734631
+    [step 0] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 20: steps=10, reward=0.00, total_env_steps=198, buffer=114
+2026-04-15 15:41:53,000 [rlt] INFO: step=198 | critic_loss=0.000685 | actor_q_loss=0.356606 | actor_bc_loss=43.551132
+    [step 0] VLA fwd: 19.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 21: steps=10, reward=0.00, total_env_steps=208, buffer=119
+2026-04-15 15:44:49,894 [rlt] INFO: step=208 | critic_loss=0.000333 | actor_q_loss=0.361745 | actor_bc_loss=48.143333
+    [step 0] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 22: steps=10, reward=0.00, total_env_steps=218, buffer=124
+2026-04-15 15:47:42,223 [rlt] INFO: step=218 | critic_loss=0.000486 | actor_q_loss=0.361502 | actor_bc_loss=46.709667
+    [step 0] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 23: steps=10, reward=0.00, total_env_steps=228, buffer=129
+2026-04-15 15:50:35,485 [rlt] INFO: step=228 | critic_loss=0.000359 | actor_q_loss=0.326804 | actor_bc_loss=39.054352
+    [step 0] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 24: steps=10, reward=0.00, total_env_steps=238, buffer=134
+2026-04-15 15:53:30,332 [rlt] INFO: step=238 | critic_loss=0.000364 | actor_q_loss=0.331909 | actor_bc_loss=38.261360
+    [step 0] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 16.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 25: steps=10, reward=0.00, total_env_steps=248, buffer=139
+2026-04-15 15:56:23,891 [rlt] INFO: step=248 | critic_loss=0.000271 | actor_q_loss=0.336959 | actor_bc_loss=38.278996
+    [step 0] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 26: steps=10, reward=0.00, total_env_steps=258, buffer=144
+2026-04-15 15:59:18,462 [rlt] INFO: step=258 | critic_loss=0.000411 | actor_q_loss=0.325606 | actor_bc_loss=38.409523
+    [step 0] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 27: steps=10, reward=0.00, total_env_steps=268, buffer=149
+2026-04-15 16:02:21,002 [rlt] INFO: step=268 | critic_loss=0.000334 | actor_q_loss=0.314839 | actor_bc_loss=40.185768
+    [step 0] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 28: steps=10, reward=0.00, total_env_steps=278, buffer=154
+2026-04-15 16:05:21,360 [rlt] INFO: step=278 | critic_loss=0.000436 | actor_q_loss=0.307223 | actor_bc_loss=40.854546
+    [step 0] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 29: steps=10, reward=0.00, total_env_steps=288, buffer=159
+2026-04-15 16:08:15,554 [rlt] INFO: step=288 | critic_loss=0.000306 | actor_q_loss=0.325821 | actor_bc_loss=39.408691
+    [step 0] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 30: steps=10, reward=0.00, total_env_steps=298, buffer=164
+2026-04-15 16:11:09,382 [rlt] INFO: step=298 | critic_loss=0.000374 | actor_q_loss=0.306954 | actor_bc_loss=31.878317
+    [step 0] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 31: steps=10, reward=0.00, total_env_steps=308, buffer=169
+2026-04-15 16:14:08,457 [rlt] INFO: step=308 | critic_loss=0.000255 | actor_q_loss=0.316510 | actor_bc_loss=30.568331
+    [step 0] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 32: steps=10, reward=0.00, total_env_steps=318, buffer=174
+2026-04-15 16:17:06,460 [rlt] INFO: step=318 | critic_loss=0.000280 | actor_q_loss=0.308272 | actor_bc_loss=28.949705
+    [step 0] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 33: steps=10, reward=0.00, total_env_steps=328, buffer=179
+2026-04-15 16:20:04,328 [rlt] INFO: step=328 | critic_loss=0.000346 | actor_q_loss=0.310621 | actor_bc_loss=28.108334
+    [step 0] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 34: steps=10, reward=0.00, total_env_steps=338, buffer=184
+2026-04-15 16:23:01,809 [rlt] INFO: step=338 | critic_loss=0.000292 | actor_q_loss=0.304995 | actor_bc_loss=29.495010
+    [step 0] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 35: steps=10, reward=0.00, total_env_steps=348, buffer=189
+2026-04-15 16:26:01,023 [rlt] INFO: step=348 | critic_loss=0.000557 | actor_q_loss=0.295642 | actor_bc_loss=29.603397
+    [step 0] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 36: steps=10, reward=0.00, total_env_steps=358, buffer=194
+2026-04-15 16:28:59,227 [rlt] INFO: step=358 | critic_loss=0.000308 | actor_q_loss=0.295232 | actor_bc_loss=28.076120
+    [step 0] VLA fwd: 18.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 37: steps=10, reward=0.00, total_env_steps=368, buffer=199
+2026-04-15 16:31:57,687 [rlt] INFO: step=368 | critic_loss=0.000250 | actor_q_loss=0.290263 | actor_bc_loss=28.103569
+    [step 0] VLA fwd: 18.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 38: steps=10, reward=0.00, total_env_steps=378, buffer=204
+2026-04-15 16:34:56,191 [rlt] INFO: step=378 | critic_loss=0.000179 | actor_q_loss=0.293997 | actor_bc_loss=24.304222
+    [step 0] VLA fwd: 18.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 39: steps=10, reward=0.00, total_env_steps=388, buffer=209
+2026-04-15 16:38:04,046 [rlt] INFO: step=388 | critic_loss=0.000198 | actor_q_loss=0.294556 | actor_bc_loss=21.257862
+    [step 0] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 40: steps=10, reward=0.00, total_env_steps=398, buffer=214
+2026-04-15 16:41:02,845 [rlt] INFO: step=398 | critic_loss=0.000214 | actor_q_loss=0.278966 | actor_bc_loss=19.487175
+    [step 0] VLA fwd: 17.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 41: steps=10, reward=0.00, total_env_steps=408, buffer=219
+2026-04-15 16:43:58,965 [rlt] INFO: step=408 | critic_loss=0.000213 | actor_q_loss=0.304292 | actor_bc_loss=16.451880
+    [step 0] VLA fwd: 17.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 42: steps=10, reward=0.00, total_env_steps=418, buffer=224
+2026-04-15 16:46:59,346 [rlt] INFO: step=418 | critic_loss=0.000182 | actor_q_loss=0.303607 | actor_bc_loss=17.246292
+    [step 0] VLA fwd: 19.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 19.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 43: steps=10, reward=0.00, total_env_steps=428, buffer=229
+2026-04-15 16:50:06,278 [rlt] INFO: step=428 | critic_loss=0.000173 | actor_q_loss=0.291604 | actor_bc_loss=15.903062
+    [step 0] VLA fwd: 18.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.5s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 44: steps=10, reward=0.00, total_env_steps=438, buffer=234
+2026-04-15 16:53:16,754 [rlt] INFO: step=438 | critic_loss=0.000141 | actor_q_loss=0.299563 | actor_bc_loss=18.240097
+    [step 0] VLA fwd: 18.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 45: steps=10, reward=0.00, total_env_steps=448, buffer=239
+2026-04-15 16:56:20,265 [rlt] INFO: step=448 | critic_loss=0.000162 | actor_q_loss=0.300329 | actor_bc_loss=13.873082
+    [step 0] VLA fwd: 18.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 19.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 46: steps=10, reward=0.00, total_env_steps=458, buffer=244
+2026-04-15 16:59:25,196 [rlt] INFO: step=458 | critic_loss=0.000195 | actor_q_loss=0.301194 | actor_bc_loss=17.101248
+    [step 0] VLA fwd: 18.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 47: steps=10, reward=0.00, total_env_steps=468, buffer=249
+2026-04-15 17:02:29,156 [rlt] INFO: step=468 | critic_loss=0.000164 | actor_q_loss=0.296187 | actor_bc_loss=17.252541
+    [step 0] VLA fwd: 18.7s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.8s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 48: steps=10, reward=0.00, total_env_steps=478, buffer=254
+2026-04-15 17:05:35,750 [rlt] INFO: step=478 | critic_loss=0.000193 | actor_q_loss=0.305806 | actor_bc_loss=16.407736
+    [step 0] VLA fwd: 22.4s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 19.6s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 49: steps=10, reward=0.00, total_env_steps=488, buffer=259
+2026-04-15 17:08:47,070 [rlt] INFO: step=488 | critic_loss=0.000113 | actor_q_loss=0.297064 | actor_bc_loss=14.272296
+    [step 0] VLA fwd: 18.2s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 18.0s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 50: steps=10, reward=0.00, total_env_steps=498, buffer=264
+2026-04-15 17:11:49,240 [rlt] INFO: step=498 | critic_loss=0.000168 | actor_q_loss=0.298885 | actor_bc_loss=14.366449
+    [step 0] VLA fwd: 18.1s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 1] VLA fwd: 17.9s, emb=(1, 968, 2048), act=(1, 50, 14)
+    [step 2] VLA fwd: 18.3s, emb=(1, 968, 2048), act=(1, 50, 14)
+[online_rl] Episode 51: steps=10, reward=0.00, total_env_steps=508, buffer=269
+2026-04-15 17:14:52,329 [rlt] INFO: step=508 | critic_loss=0.000159 | actor_q_loss=0.299809 | actor_bc_loss=18.760693
+2026-04-15 17:14:52,330 [absl] INFO: [process=0][thread=MainThread][wait_until_finished] No Save Finalize thread to wait for. Returning.
+2026-04-15 17:14:52,330 [absl] INFO: [process=0] Saving checkpoint at step 508
+2026-04-15 17:14:52,331 [absl] INFO: [process=0] Started async saving checkpoint to /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508.
+2026-04-15 17:14:52,332 [root] INFO: Using ThreadSafeKeyValueSignalingClient
+2026-04-15 17:14:52,333 [absl] INFO: No entry found in handler registry for item: default and args with type: <class 'orbax.checkpoint._src.handlers.standard_checkpoint_handler.StandardSaveArgs'>. Falling back to global handler registry.
+2026-04-15 17:14:52,333 [absl] INFO: Created BasePyTreeCheckpointHandler: use_ocdbt=True, use_zarr3=False, pytree_metadata_options=PyTreeMetadataOptions(support_rich_types=False), array_metadata_store=<orbax.checkpoint._src.metadata.array_metadata_store.Store object at 0x7186c81f5c90>
+2026-04-15 17:14:52,333 [absl] INFO: Deferred registration for item: "default". Adding handler `<orbax.checkpoint._src.handlers.standard_checkpoint_handler.StandardCheckpointHandler object at 0x7175c9cf7a50>` for item "default" and save args `<class 'orbax.checkpoint._src.handlers.standard_checkpoint_handler.StandardSaveArgs'>` and restore args `<class 'orbax.checkpoint._src.handlers.standard_checkpoint_handler.StandardRestoreArgs'>` to `_handler_registry`.
+2026-04-15 17:14:52,335 [absl] INFO: Transferring arrays to host memory with options: use_replica_parallel=True, enable_pinned_host_transfer=False
+2026-04-15 17:14:52,337 [absl] INFO: Creating tmp directory /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508.orbax-checkpoint-tmp-0
+2026-04-15 17:14:52,339 [absl] INFO: [process=0] /jax/checkpoint/write/blocking_bytes_per_sec: 507.7 MiB/s (total bytes: 2.5 MiB) (time elapsed: 5 milliseconds) (per-host)
+2026-04-15 17:14:52,341 [absl] INFO: [process=0][thread=async_save] Background save thread started.
+2026-04-15 17:14:52,341 [absl] INFO: Finished blocking save in 0.01 seconds. Continuing to save asynchronously to /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508.
+2026-04-15 17:14:52,342 [absl] INFO: [process=0][thread=MainThread][step=508] Starting CheckpointManager Save Finalize thread=save_finalize
+2026-04-15 17:14:52,342 [absl] INFO: Wrote Metadata={'item_handlers': None, 'metrics': {}, 'performance_metrics': {}, 'init_timestamp_nsecs': 1776240892340136831, 'commit_timestamp_nsecs': None, 'custom_metadata': {}}, json={"item_handlers": null, "metrics": {}, "performance_metrics": {}, "init_timestamp_nsecs": 1776240892340136831, "commit_timestamp_nsecs": null, "custom_metadata": {}} to /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508.orbax-checkpoint-tmp-0/_CHECKPOINT_METADATA
+2026-04-15 17:14:52,342 [absl] INFO: [process=0][thread=save_finalize] Waiting for background save thread=async_save.
+2026-04-15 17:14:52,342 [absl] INFO: {'step': 508, 'event_type': 'save', 'directory': '/home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test', 'reached_preemption': False, 'preemption_received_at': None, 'synchronous': False, 'wait_for_prev_start_time': 1776240892.3305972, 'wait_for_prev_duration_secs': 9.202957153320312e-05, 'checkpointer_blocking_start_time': 1776240892.3308914, 'checkpointer_blocking_duration_secs': 0.011182785034179688, 'get_old_steps_start_time': 1776240892.3420894, 'get_old_steps_duration_secs': 5.9604644775390625e-06, 'checkpoint_manager_blocking_start_time': 1776240892.330429, 'checkpoint_manager_blocking_duration_secs': 0.012359380722045898}
+2026-04-15 17:14:52,342 [rlt] INFO: Online RL training complete after 508 steps, 51 episodes
+2026-04-15 17:14:52,391 [absl] INFO: Creating tmp directory /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508.orbax-checkpoint-tmp-0/default.orbax-checkpoint-tmp-1
+2026-04-15 17:14:52,401 [absl] INFO: [process=0][thread=array_type_handler] Wrote 7 array_metadata.ArrayMetadata to /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508.orbax-checkpoint-tmp-0/default.orbax-checkpoint-tmp-1/array_metadatas/process_0
+=== DONE! Total time: 9651.3s ===
+2026-04-15 17:14:52,481 [absl] ERROR: [process=0] Failed to run 3 Handler Commit operations or the Commit callback in background save thread, directory: /home/engineer/project/rlt/checkpoints/pen_uncap/online_rl/full_test/508
+Traceback (most recent call last):
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 208, in _thread_func
+    _background_wait_for_commit_futures(
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 86, in _background_wait_for_commit_futures
+    commit_future.result()
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 174, in result
+    f.result(timeout=time_remaining)
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 397, in result
+    return self._f.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 348, in result
+    return self._t.result(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 297, in result
+    self.join(timeout=timeout)
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 294, in join
+    raise self._exception
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 281, in run
+    super().run()
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 230, in _target_setting_result
+    self._result = target()
+                   ^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/futures/future.py", line 341, in <lambda>
+    target=lambda: asyncio_utils.run_sync(coro),
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/asyncio_utils.py", line 50, in run_sync
+    return asyncio.run(coro)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/handlers/base_pytree_checkpoint_handler.py", line 897, in _write_metadata_after_commits
+    param_infos = await self._get_param_infos_with_write_shape(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/handlers/base_pytree_checkpoint_handler.py", line 803, in _get_param_infos_with_write_shape
+    array_metadatas = await array_metadata_store.read(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/metadata/array_metadata_store.py", line 234, in read
+    if not await asyncio.to_thread(checkpoint_dir.exists):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/asyncio/base_events.py", line 830, in run_in_executor
+    executor.submit(func, *args), loop=self)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/.local/share/uv/python/cpython-3.11.15-linux-x86_64-gnu/lib/python3.11/concurrent/futures/thread.py", line 167, in submit
+    raise RuntimeError('cannot schedule new futures after shutdown')
+RuntimeError: cannot schedule new futures after shutdown
+2026-04-15 17:14:52,486 [absl] INFO: [process=0][thread=save_finalize] Done with waiting for background save thread=async_save.

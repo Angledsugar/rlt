@@ -21,7 +21,7 @@ def create_checkpoint_manager(
     Returns:
         CheckpointManager instance.
     """
-    path = Path(checkpoint_dir)
+    path = Path(checkpoint_dir).resolve()
     path.mkdir(parents=True, exist_ok=True)
     return ocp.CheckpointManager(
         path,

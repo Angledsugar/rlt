@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "/home/engineer/project/rlt/scripts/train_pen_uncap.py", line 300, in <module>
+    tyro.cli(main)
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/tyro/_cli.py", line 282, in cli
+    out = run_with_args_from_cli()
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/scripts/train_pen_uncap.py", line 293, in main
+    state = checkpointer.restore(rl_token_checkpoint, target=nnx.state(rl_token_module))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/standard_checkpointer.py", line 152, in restore
+    return super().restore(
+           ^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/async_checkpointer.py", line 558, in restore
+    return super().restore(directory, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/checkpointers/checkpointer.py", line 296, in restore
+    if not utils.is_checkpoint_finalized(directory):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/engineer/project/rlt/.venv/lib/python3.11/site-packages/orbax/checkpoint/_src/path/step.py", line 665, in is_checkpoint_finalized
+    raise ValueError(f'Path {path} is not a directory. Not a valid checkpoint')
+ValueError: Path checkpoints/pen_uncap/rl_token/real_best/state.pkl is not a directory. Not a valid checkpoint

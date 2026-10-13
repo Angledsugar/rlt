@@ -24,6 +24,7 @@ os.environ.setdefault("CUDA_VISIBLE_DEVICES", "0,1")
 # Enable HF Transfer for faster downloads (Rust-based multi-connection).
 os.environ.setdefault("HF_HUB_ENABLE_HF_TRANSFER", "1")
 
+import dataclasses
 import logging
 import sys
 from pathlib import Path
@@ -97,7 +98,10 @@ def train_rl_token_pen_uncap(
     # Load pre-extracted embeddings.
     emb_path = Path(embeddings_dir)
     embeddings_all = np.load(emb_path / "embeddings.npy")
-    logger.info("Loaded embeddings: %s", embeddings_all.shape)
+    # VLA outputs bfloat16 which numpy stores as raw bytes (|V2). Convert to float32.
+    if embeddings_all.dtype.kind == "V":
+        embeddings_all = embeddings_all.view(jnp.bfloat16).astype(np.float32)
+    logger.info("Loaded embeddings: %s (dtype=%s)", embeddings_all.shape, embeddings_all.dtype)
     sys.stdout.flush()
 
     num_frames, seq_len, embed_dim = embeddings_all.shape
@@ -132,11 +136,11 @@ def train_rl_token_pen_uncap(
             log_metrics(step, {"rl_token/reconstruction_loss": float(loss)})
 
         if step % 1000 == 0 and step > 0:
-            ckpt_manager.save(step, args=nnx.state(rl_token))
+            ckpt_manager.save(step, args=ocp.args.StandardSave(nnx.state(rl_token)))
             logger.info("Checkpoint saved at step %d", step)
 
     # Save final.
-    ckpt_manager.save(config.rl_token.num_train_steps, args=nnx.state(rl_token))
+    ckpt_manager.save(config.rl_token.num_train_steps, args=ocp.args.StandardSave(nnx.state(rl_token)))
     logger.info("Phase 1 complete. Final checkpoint: %s/%d", checkpoint_dir, config.rl_token.num_train_steps)
 
     return rl_token
@@ -146,6 +150,7 @@ def train_online_rl_pen_uncap(
     config: RLTConfig,
     rl_token_module: RLTokenModule,
     rng: jax.Array,
+    checkpoint_dir: str = "checkpoints/pen_uncap/online_rl",
 ) -> None:
     """Phase 2: Online RL on pen_uncap task.
 
@@ -159,16 +164,17 @@ def train_online_rl_pen_uncap(
     from rlt.envs.aloha_env import AlohaSimEnv
     from rlt.training.train_online_rl import train_online_rl
 
-    # For sim testing, use gym-aloha. For real robot, replace with real env.
+    # Use pen_uncap simulation environment.
+    # max_episode_steps=100 keeps episodes short (~10 VLA calls/episode)
+    # since each VLA forward pass takes ~15s on RTX 3090.
     env = AlohaSimEnv(
-        task="gym_aloha/AlohaTransferCube-v0",
+        task="gym_aloha/AlohaPenUncap-v0",
         prompt="uncap the pen",
-        # train_online_rl uses openpi policy output transforms, so actions are
-        # already in the environment/Aloha action space.
         adapt_to_pi=False,
+        max_episode_steps=100,
     )
 
-    train_online_rl(config, rl_token_module, env, rng)
+    train_online_rl(config, rl_token_module, env, rng, checkpoint_dir=checkpoint_dir)
 
 
 def main(
@@ -176,6 +182,22 @@ def main(
     embeddings_dir: str = "data/pen_uncap_embeddings",
     rl_token_checkpoint: str | None = None,
     seed: int = 42,
+    # --- Phase 1 overrides ---
+    rl_token_lr: float | None = None,
+    rl_token_batch_size: int | None = None,
+    rl_token_num_steps: int | None = None,
+    # --- Phase 2 overrides ---
+    beta: float | None = None,
+    reference_action_dropout: float | None = None,
+    utd_ratio: int | None = None,
+    num_warmup_episodes: int | None = None,
+    actor_lr: float | None = None,
+    critic_lr: float | None = None,
+    action_chunk_stride: int | None = None,
+    max_env_steps: int | None = None,
+    # --- Output ---
+    run_name: str | None = None,
+    checkpoint_base: str = "checkpoints/pen_uncap",
 ) -> None:
     """Run RLT training for ALOHA pen_uncap task.
 
@@ -189,13 +211,77 @@ def main(
         embeddings_dir: Directory with pre-extracted .npy files from Phase 0.
         rl_token_checkpoint: Path to trained RL token checkpoint (required for phase 2 only).
         seed: Random seed.
+        rl_token_lr: Override RL token learning rate.
+        rl_token_batch_size: Override RL token batch size.
+        rl_token_num_steps: Override RL token training steps.
+        beta: Override BC regularization coefficient.
+        reference_action_dropout: Override reference action dropout.
+        utd_ratio: Override update-to-data ratio.
+        num_warmup_episodes: Override warmup episodes.
+        actor_lr: Override actor learning rate.
+        critic_lr: Override critic learning rate.
+        action_chunk_stride: Override action chunk stride.
+        max_env_steps: Override max environment steps.
+        run_name: Experiment run name (used for checkpoint/log dirs).
+        checkpoint_base: Base directory for checkpoints.
     """
     config = make_pen_uncap_config()
+
+    # Apply overrides by rebuilding frozen dataclasses.
+    rl_token_overrides = {}
+    if rl_token_lr is not None:
+        rl_token_overrides["learning_rate"] = rl_token_lr
+    if rl_token_batch_size is not None:
+        rl_token_overrides["batch_size"] = rl_token_batch_size
+    if rl_token_num_steps is not None:
+        rl_token_overrides["num_train_steps"] = rl_token_num_steps
+    if rl_token_overrides:
+        config = dataclasses.replace(config, rl_token=dataclasses.replace(config.rl_token, **rl_token_overrides))
+
+    actor_overrides = {}
+    if actor_lr is not None:
+        actor_overrides["learning_rate"] = actor_lr
+    if actor_overrides:
+        config = dataclasses.replace(config, actor=dataclasses.replace(config.actor, **actor_overrides))
+
+    critic_overrides = {}
+    if critic_lr is not None:
+        critic_overrides["learning_rate"] = critic_lr
+    if critic_overrides:
+        config = dataclasses.replace(config, critic=dataclasses.replace(config.critic, **critic_overrides))
+
+    training_overrides = {}
+    if beta is not None:
+        training_overrides["beta"] = beta
+    if reference_action_dropout is not None:
+        training_overrides["reference_action_dropout"] = reference_action_dropout
+    if utd_ratio is not None:
+        training_overrides["utd_ratio"] = utd_ratio
+    if num_warmup_episodes is not None:
+        training_overrides["num_warmup_episodes"] = num_warmup_episodes
+    if action_chunk_stride is not None:
+        training_overrides["action_chunk_stride"] = action_chunk_stride
+    if max_env_steps is not None:
+        training_overrides["max_env_steps"] = max_env_steps
+    if training_overrides:
+        config = dataclasses.replace(config, training=dataclasses.replace(config.training, **training_overrides))
+
+    # Resolve checkpoint dirs.
+    suffix = f"/{run_name}" if run_name else ""
+    rl_token_ckpt_dir = f"{checkpoint_base}/rl_token{suffix}"
+    online_rl_ckpt_dir = f"{checkpoint_base}/online_rl{suffix}"
+
+    logger.info("Config: %s", config)
+    logger.info("Checkpoint dirs: rl_token=%s, online_rl=%s", rl_token_ckpt_dir, online_rl_ckpt_dir)
     rng = jax.random.PRNGKey(seed)
 
     if phase in ("1", "both"):
         rng, phase1_rng = jax.random.split(rng)
-        rl_token_module = train_rl_token_pen_uncap(config, phase1_rng, embeddings_dir=embeddings_dir)
+        rl_token_module = train_rl_token_pen_uncap(
+            config, phase1_rng,
+            embeddings_dir=embeddings_dir,
+            checkpoint_dir=rl_token_ckpt_dir,
+        )
 
     if phase in ("2", "both"):
         rng, phase2_rng = jax.random.split(rng)
@@ -206,11 +292,17 @@ def main(
                 raise ValueError("--rl-token-checkpoint required for phase 2")
             rng, model_rng = jax.random.split(rng)
             rl_token_module = RLTokenModule(config.rl_token, rngs=nnx.Rngs(model_rng))
-            checkpointer = ocp.StandardCheckpointer()
-            state = checkpointer.restore(rl_token_checkpoint, target=nnx.state(rl_token_module))
+            if rl_token_checkpoint.endswith(".pkl"):
+                import pickle
+                with open(rl_token_checkpoint, "rb") as f:
+                    state_np = pickle.load(f)
+                state = jax.tree.map(jnp.asarray, state_np)
+            else:
+                checkpointer = ocp.StandardCheckpointer()
+                state = checkpointer.restore(rl_token_checkpoint, target=nnx.state(rl_token_module))
             nnx.update(rl_token_module, state)
 
-        train_online_rl_pen_uncap(config, rl_token_module, phase2_rng)
+        train_online_rl_pen_uncap(config, rl_token_module, phase2_rng, online_rl_ckpt_dir)
 
 
 if __name__ == "__main__":
